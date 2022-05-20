@@ -1,12 +1,9 @@
 # shared-workflows
----
 
 Current workflows:
-
 * Serverless node deploy
 
 # How to use it
----
 
 #### Serverless node deploy
 
