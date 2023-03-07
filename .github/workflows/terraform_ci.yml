@@ -23,7 +23,7 @@ jobs:
           - "~1.1.9"
     steps:
     - uses: actions/checkout@v2
-    - uses: hashicorp/setup-terraform@v1
+    - uses: hashicorp/setup-terraform@v2
       with:
         terraform_version: ${{ matrix.terraform_version }}
 
@@ -44,7 +44,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - uses: hashicorp/setup-terraform@v1
+    - uses: hashicorp/setup-terraform@v2
       with:
         terraform_version: ${{ matrix.terraform_version }}
         cli_config_credentials_hostname: app.terraform.io
