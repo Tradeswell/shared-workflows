@@ -2,6 +2,10 @@ name: 'Deploy'
 on:
   workflow_call:
     inputs:
+      terraform_version:
+        type: string
+        required: false
+        default: '~1.1.9'
       workspaces:
         type: string
         required: true
@@ -16,11 +20,11 @@ on:
 jobs:
   format:
     name: Format
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         terraform_version:
-          - "~1.1.9"
+          - ${{ inputs.terraform_version }}
     steps:
     - uses: actions/checkout@v2
     - uses: hashicorp/setup-terraform@v2
@@ -34,11 +38,11 @@ jobs:
 
   validate:
     name: Validate
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         terraform_version:
-          - "~1.1.9"
+          - ${{ inputs.terraform_version }}
         workspaces: 
           - ${{ inputs.workspaces }}
     steps:
