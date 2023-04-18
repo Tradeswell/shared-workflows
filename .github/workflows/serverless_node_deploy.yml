@@ -9,6 +9,11 @@ on:
         type: string
         required: false
         default: 12.x
+      working-directory:
+        type: string
+        required: false
+        default: './'
+        description: Relative path within repo to use for deployment action. Trailing slash required.
     secrets:
       AWS_ACCESS_KEY_ID:
         required: true
@@ -18,6 +23,10 @@ on:
         required: true
       SLACK_BOT_TOKEN:
         required: true
+
+defaults:
+  run:
+    working-directory: ${{ inputs.working-directory }}
 jobs:
   deploy:
     runs-on: ubuntu-20.04
@@ -29,6 +38,8 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ inputs.node-version }}
+          cache: npm
+          cache-dependency-path: ${{ inputs.working-directory }}package-lock.json
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
