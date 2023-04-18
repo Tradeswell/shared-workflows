@@ -16,8 +16,29 @@ Current workflows:
     "deploy:prod": "serverless deploy -s prod"
   }
 ```
-* Add `aws.yml` workflow in `.github/workflows/` dir, example:
+* Add shared job to workflow definition in `.github/workflows/` dir. Example job definition:
+```yaml
+jobs:
+  deploy:
+    uses: Tradeswell/shared-workflows/.github/workflows/serverless_node_deploy.yml@main
+    with:
+      # The environment to deploy to. Corresponds to the equivalent npm `deploy:*` script
+      stage: dev 
+      # Optional override of the node version to use when building/deploying
+      node-version: 14.x
+      # Optional override of the working directory. Useful for selecting a single project from a monorepo.
+      # Default is the root of the repo.
+      working-directory: ./foo/
+    secrets:
+      # Used to connect to the AWS API and trigger deployments
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      # Used for notification of CI/CD success or failure
+      SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+```
 
+* Example full workflow definition:
 ```yaml
 name: CD/CI
 on:
@@ -46,6 +67,7 @@ jobs:
     uses: Tradeswell/shared-workflows/.github/workflows/serverless_node_deploy.yml@main
     with:
       stage: 'qa'
+      node-version: 14.x
     secrets:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -58,6 +80,7 @@ jobs:
     uses: Tradeswell/shared-workflows/.github/workflows/serverless_node_deploy.yml@main
     with:
       stage: 'prod'
+      node-version: 14.x
     secrets:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
