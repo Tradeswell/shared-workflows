@@ -24,12 +24,12 @@ on:
       SLACK_BOT_TOKEN:
         required: true
 
-defaults:
-  run:
-    working-directory: ${{ inputs.working-directory }}
 jobs:
   deploy:
     runs-on: ubuntu-20.04
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
