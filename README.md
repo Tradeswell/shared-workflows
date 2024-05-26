@@ -22,11 +22,17 @@ jobs:
   deploy:
     uses: Tradeswell/shared-workflows/.github/workflows/serverless_node_deploy.yml@main
     with:
-      # The environment to deploy to. Corresponds to the equivalent npm `deploy:*` script
+      # REQUIRED: The environment to deploy to. Corresponds to the equivalent npm `deploy:*` script
       stage: dev 
-      # Optional override of the node version to use when building/deploying
-      node-version: 14.x
-      # Optional override of the working directory. Useful for selecting a single project from a monorepo.
+      # REQUIRED: node version to use when building/deploying
+      node-version: 20.x
+      # OPTIONAL: whether to notify #tw-releases slack channel
+      # when successfully deployed
+      notifyOnSuccess: true
+      # OPTIONAL: whether to notify #tw-development slack channel
+      # when deployment fails
+      notifyOnFailure: true
+      # OPTIONAL: override of the working directory. Useful for selecting a single project from a monorepo.
       # Default is the root of the repo.
       working-directory: ./foo/
     secrets:
@@ -66,8 +72,8 @@ jobs:
     if: github.ref == 'refs/heads/main'
     uses: Tradeswell/shared-workflows/.github/workflows/serverless_node_deploy.yml@main
     with:
-      stage: 'qa'
-      node-version: 14.x
+      stage: qa
+      node-version: 20.x
     secrets:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -79,8 +85,8 @@ jobs:
     if: ${{ github.event_name == 'release' }}
     uses: Tradeswell/shared-workflows/.github/workflows/serverless_node_deploy.yml@main
     with:
-      stage: 'prod'
-      node-version: 14.x
+      stage: prod
+      node-version: 20.x
     secrets:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
