@@ -7,8 +7,15 @@ on:
         required: true
       node-version:
         type: string
+        required: true
+      notifyOnSuccess:
+        type: boolean
         required: false
-        default: 12.x
+        default: true
+      notifyOnFailure:
+        type: boolean
+        required: false
+        default: true
       working-directory:
         type: string
         required: false
@@ -26,23 +33,23 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     defaults:
       run:
         working-directory: ${{ inputs.working-directory }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Use Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ inputs.node-version }}
           cache: npm
           cache-dependency-path: ${{ inputs.working-directory }}package-lock.json
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -54,16 +61,16 @@ jobs:
           npm run deploy:${{ inputs.stage }}
 
       - name: Failure Notification
-        if: ${{ failure() }}
-        uses: kpritam/slack-job-status-action@v0.1.2
+        if: ${{ failure() && inputs.notifyOnFailure == true }}
+        uses: kpritam/slack-job-status-action@v1
         with:
           job-status: ${{ job.status }}
           slack-bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
           channel: tw-development
 
       - name: Release Notification
-        if: ${{ success() }}
-        uses: kpritam/slack-job-status-action@v0.1.2
+        if: ${{ success() && inputs.notifyOnSuccess == true }}
+        uses: kpritam/slack-job-status-action@v1
         with:
           job-status: ${{ job.status }}
           slack-bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
