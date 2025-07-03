@@ -1,0 +1,38 @@
+name: Notify Build Status
+description: Notifies Slack on workflow success or failure
+
+inputs:
+  slack-bot-token:
+    description: Slack Webhook Token
+    required: true
+  notify-success:
+    description: If alert should be triggered if workflow succeeded
+    default: 'true'
+  notify-failure:
+    description: If alert should be triggered if workflow failed
+    default: 'true'
+  channel-success:
+    description: Which slack channel to send successes to
+    default: 'tw-releases'
+  channel-failure:
+    description: Which slack channel to send failures to
+    default: 'tw-development'
+
+runs:
+  using: composite
+  steps:
+    - name: Failure Notification
+      if: ${{ failure() && inputs.notify-failure == 'true' }}
+      uses: kpritam/slack-job-status-action@v1
+      with:
+        job-status: ${{ job.status }}
+        slack-bot-token: ${{ inputs.slack-bot-token }}
+        channel: ${{ inputs.channel-failure }}
+
+    - name: Release Notification
+      if: ${{ success() && inputs.notify-success == 'true' }}
+      uses: kpritam/slack-job-status-action@v1
+      with:
+        job-status: ${{ job.status }}
+        slack-bot-token: ${{ inputs.slack-bot-token }}
+        channel: ${{ inputs.channel-success }}

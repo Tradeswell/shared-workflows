@@ -1,13 +1,43 @@
 # shared-workflows
 
-Current workflows:
-* Serverless node deploy
+Common organization level workflows and actions for Incremental.
 
-# How to use it
+## Actions
+- [Build Status Alert](#build-status-alert)
 
-#### Serverless node deploy
+## Workflows
+- [Serverless Node Deploy](#serverless-node-deploy)
 
-* Make sure that serverless is installed as NPM dependency 
+## Usage Details
+
+### Build Status Alert
+
+Standardized system Incremental uses for build notifications. Should be included as the last step of workflows.
+
+Example workflow using Build Status Alert
+```yaml
+name: Example Workflow using Build Status Alert
+on:
+  push:
+    branches:
+      - main
+jobs:
+  example:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Slack Notification
+        uses: Tradeswell/shared-workflows/actions/build-status-alert@main
+        with:
+          slack-bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
+          notify-success: 'true' # OPTIONAL
+          notify-failure: 'true' # OPTIONAL
+          channel-success: 'tw-releases' # OPTIONAL
+          channel-failure: 'tw-development' #OPTIONAL
+```
+
+### Serverless Node Deploy
+
+* Make sure that serverless is installed as NPM dependency
 * NPM script contains following scripts in `package.json` - `deploy:{STAGE}`,  example:
 ```yaml
   "scripts": {
@@ -23,7 +53,7 @@ jobs:
     uses: Tradeswell/shared-workflows/.github/workflows/serverless_node_deploy.yml@main
     with:
       # REQUIRED: The environment to deploy to. Corresponds to the equivalent npm `deploy:*` script
-      stage: dev 
+      stage: dev
       # REQUIRED: node version to use when building/deploying
       node-version: 20.x
       # OPTIONAL: whether to notify #tw-releases slack channel
