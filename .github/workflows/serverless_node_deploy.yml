@@ -8,6 +8,9 @@ on:
       node-version:
         type: string
         required: true
+      name:
+        description: What to name the job for GH Actions UI
+        type: string
       notifyOnSuccess:
         type: boolean
         required: false
@@ -33,6 +36,7 @@ on:
 
 jobs:
   deploy:
+    name: ${{ inputs.name || 'deploy' }}
     runs-on: ubuntu-22.04
     defaults:
       run:
