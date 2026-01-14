@@ -22,7 +22,7 @@ runs:
   using: composite
   steps:
     - name: Failure Notification
-      if: ${{ failure() && inputs.notify-failure == 'true' }}
+      if: ${{ job.status == 'failure' && inputs.notify-failure == 'true' }}
       uses: kpritam/slack-job-status-action@v1
       with:
         job-status: ${{ job.status }}
@@ -30,7 +30,7 @@ runs:
         channel: ${{ inputs.channel-failure }}
 
     - name: Release Notification
-      if: ${{ success() && inputs.notify-success == 'true' }}
+      if: ${{ job.status == 'success' && inputs.notify-success == 'true' }}
       uses: kpritam/slack-job-status-action@v1
       with:
         job-status: ${{ job.status }}
