@@ -1,0 +1,32 @@
+name: 'Migration Linting'
+on:
+  workflow_call:
+    inputs:
+      migration-directory:
+        description: Path to the Flyway migrations directory
+        type: string
+        required: true
+      ignore-files:
+        description: Newline-separated list of SQL filename patterns to skip during linting (supports globs, e.g. "V1_*.sql")
+        type: string
+        required: false
+        default: ''
+
+jobs:
+  lint-migrations:
+    name: lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Checkout shared-workflows scripts
+        uses: actions/checkout@v6
+        with:
+          repository: Tradeswell/shared-workflows
+          path: .shared-workflows
+          sparse-checkout: scripts/
+
+      - name: Lint Flyway migrations
+        shell: bash
+        run: .shared-workflows/scripts/flyway/lint-migrations.sh "${{ inputs.migration-directory }}" "${{ inputs.ignore-files }}"

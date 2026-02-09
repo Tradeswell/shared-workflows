@@ -7,6 +7,7 @@ Common organization level workflows and actions for Incremental.
 
 ## Workflows
 - [Serverless Node Deploy](#serverless-node-deploy)
+- [Flyway Migration Lint](#flyway-migration-lint)
 
 ## Usage Details
 
@@ -122,4 +123,34 @@ jobs:
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_REGION: ${{ secrets.AWS_REGION }}
       SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+```
+
+### Flyway Migration Lint
+
+Validates Flyway migration file naming conventions and checks for duplicate versions. The lint performs the following checks:
+
+- **Stray file detection** — flags any `.sql` file that doesn't start with `V`, `U`, or `R` and isn't a recognized Flyway lifecycle callback
+- **Naming validation** — verifies V/U migrations match `V{version}__{description}.sql` (e.g. `V1_2__Create_table.sql`), R migrations match `R__{number}_{description}.sql` (e.g. `R__1_Refresh_view.sql`), and lifecycle callbacks match `{lifecycleName}__{number}_{description}.sql` (e.g. `beforeMigrate__1_Init.sql`)
+- **Duplicate V/U versions** — fails if any version number is duplicated within a prefix type
+- **Duplicate R numbers** — fails if any repeatable migration number is duplicated
+- **Duplicate lifecycle numbers** — fails if any lifecycle callback number is duplicated within the same callback name
+- **Ignore list** — optionally skip known legacy files via `ignore-files`; ignored files emit `::warning` annotations instead of errors
+
+Example usage in a caller workflow:
+```yaml
+name: PR Checks
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  flyway-lint:
+    uses: Tradeswell/shared-workflows/.github/workflows/flyway_lint.yml@main
+    with:
+      # REQUIRED: path to the directory containing migration SQL files
+      migration-directory: ./src/main/resources/db/migration
+      # OPTIONAL: newline-separated list of SQL filenames to skip during linting
+      ignore-files: |
+        V1_bad_legacy_file.sql
+        V2_another_legacy.sql
 ```
