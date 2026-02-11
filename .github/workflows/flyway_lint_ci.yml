@@ -1,0 +1,59 @@
+name: 'Flyway Lint CI'
+on:
+  push:
+    paths:
+      - 'scripts/flyway/**'
+      - 'tests/flyway/**'
+      - '.github/workflows/flyway_lint_ci.yml'
+  pull_request:
+    paths:
+      - 'scripts/flyway/**'
+      - 'tests/flyway/**'
+      - '.github/workflows/flyway_lint_ci.yml'
+
+jobs:
+  pass:
+    name: 'pass — ${{ matrix.fixture }}'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - fixture: valid-flat
+          - fixture: valid-nested
+          - fixture: ignore-file
+            ignore-files: 'oops_random_file.sql'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Run lint (expect pass)
+        run: bash scripts/flyway/lint-migrations.sh "tests/flyway/fixtures/${{ matrix.fixture }}" "${{ matrix.ignore-files }}"
+
+  fail:
+    name: 'fail — ${{ matrix.fixture }}'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    strategy:
+      fail-fast: false
+      matrix:
+        fixture:
+          - stray-file
+          - stray-file-nested
+          - invalid-v-name
+          - invalid-r-name
+          - invalid-lifecycle-name
+          - duplicate-v-version
+          - duplicate-r-number
+          - duplicate-lifecycle-number
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Run lint (expect failure)
+        run: '! bash scripts/flyway/lint-migrations.sh "tests/flyway/fixtures/${{ matrix.fixture }}"'
