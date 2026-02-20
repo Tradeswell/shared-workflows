@@ -5,6 +5,9 @@ inputs:
   slack-bot-token:
     description: Slack Webhook Token
     required: true
+  job-status:
+    description: 'Override job status (e.g. computed from needs context). Falls back to job.status if not provided.'
+    default: ''
   notify-success:
     description: If alert should be triggered if workflow succeeded
     default: 'true'
@@ -22,17 +25,17 @@ runs:
   using: composite
   steps:
     - name: Failure Notification
-      if: ${{ job.status == 'failure' && inputs.notify-failure == 'true' }}
+      if: ${{ (inputs.job-status || job.status) == 'failure' && inputs.notify-failure == 'true' }}
       uses: kpritam/slack-job-status-action@v1
       with:
-        job-status: ${{ job.status }}
+        job-status: ${{ inputs.job-status || job.status }}
         slack-bot-token: ${{ inputs.slack-bot-token }}
         channel: ${{ inputs.channel-failure }}
 
     - name: Release Notification
-      if: ${{ job.status == 'success' && inputs.notify-success == 'true' }}
+      if: ${{ (inputs.job-status || job.status) == 'success' && inputs.notify-success == 'true' }}
       uses: kpritam/slack-job-status-action@v1
       with:
-        job-status: ${{ job.status }}
+        job-status: ${{ inputs.job-status || job.status }}
         slack-bot-token: ${{ inputs.slack-bot-token }}
         channel: ${{ inputs.channel-success }}
