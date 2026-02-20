@@ -30,6 +30,7 @@ jobs:
         uses: Tradeswell/shared-workflows/actions/build-status-alert@main
         with:
           slack-bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
+          job-status: ${{ needs.build.result }} # OPTIONAL - overrides job.status for when notification is in a separate job from the action being performed and must be calculated.
           notify-success: 'true' # OPTIONAL
           notify-failure: 'true' # OPTIONAL
           channel-success: 'tw-releases' # OPTIONAL
